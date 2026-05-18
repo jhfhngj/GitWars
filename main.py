@@ -13,7 +13,7 @@ if os.system("gh") != 0:
     print("Install GitHub CLI and log in for this game to work.")
     exit( 1 )
 def api(do):
-    return command(f"gh api --cache 1h {do}")
+    return subprocess.run(["gh", "api", "--cache", "1h"] + do.split(), capture_output=True, text=True).stdout
 def command(do):
     return subprocess.run(do.split(),capture_output=True,text=True,check=True).stdout
 def battle(youbytes:int,thembytes:int):
@@ -46,9 +46,9 @@ def battle(youbytes:int,thembytes:int):
     else:
         print("It's a tie...")
 
-print("GitWars by jhfhngj")
+print("\033cGitWars by jhfhngj")
 print("Welcome to GitWars!")
-uname = api("user --jq .login")
+uname = api("user --jq .login").strip()
 print("Your username is",uname)
 print("Ctrl-C or (Ctrl-D for *nix, Ctrl-Z+Enter for Windows) to exit.")
 try:
@@ -61,7 +61,7 @@ try:
         do = int(input()[0])
         if do == 2:
             print("Your stats:")
-            repocount = command("gh repo list").splitlines()[1].strip().replace("Showing ","").replace("of ","").replace("repositories in ","").replace(" ","").split()[0]
+            repocount = len(api(f"/users/{uname}/repos --jq '.[].name'").splitlines())
             won = cur["won"]
             print("You have",repocount,"repos.")
             print("Whilst battling, you won",won,"times!")
