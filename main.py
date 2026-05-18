@@ -74,7 +74,7 @@ try:
             out = 3.14159265358
             while out != 0:
                 tobattle = input()
-                out = os.system(f"gh api users/{tobattle} --jq '.login'")
+                out = os.system(f"gh api users/{tobattle} --jq .login")
             print("Fetching bytes...")
             bytesa = sum(map(int,api(f"/users/{tobattle}/repos --jq .[].size").splitlines()))
             print(tobattle,"has",bytesa,"bytes. Proceed? (Y/n)")
