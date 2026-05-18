@@ -13,7 +13,6 @@ if os.system("gh") != 0:
     print("Install GitHub CLI and log in for this game to work.")
     exit( 1 )
 def api(do):
-    print(do)
     return subprocess.run(["gh", "api", "--cache", "1s"] + do.split(), capture_output=True, text=True).stdout
 def command(do):
     return subprocess.run(do.split(),capture_output=True,text=True,check=True).stdout
