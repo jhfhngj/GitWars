@@ -13,7 +13,8 @@ if os.system("gh") != 0:
     print("Install GitHub CLI and log in for this game to work.")
     exit( 1 )
 def api(do):
-    return subprocess.run(["gh", "api", "--cache", "1h"] + do.split(), capture_output=True, text=True).stdout
+    print(do)
+    return subprocess.run(["gh", "api", "--cache", "1s"] + do.split(), capture_output=True, text=True).stdout
 def command(do):
     return subprocess.run(do.split(),capture_output=True,text=True,check=True).stdout
 def battle(youbytes:int,thembytes:int):
@@ -61,11 +62,11 @@ try:
         do = int(input()[0])
         if do == 2:
             print("Your stats:")
-            repocount = len(api(f"/users/{uname}/repos --jq '.[].name'").splitlines())
+            repocount = len(api(f"/users/{uname}/repos --jq .[].name").splitlines())
             won = cur["won"]
             print("You have",repocount,"repos.")
             print("Whilst battling, you won",won,"times!")
-            print("You currently have",sum(map(int,api(f"/users/{uname}/repos --jq '.[].size'").splitlines())),"bytes.")
+            print("You currently have",sum(map(int,api(f"/users/{uname}/repos --jq .[].size").splitlines())),"bytes.")
             print("Here are your battles:"," ".join(cur["battles"]))
         else:
             print("Welcome to Battle Mode.")
@@ -76,14 +77,14 @@ try:
                 tobattle = input()
                 out = os.system(f"gh api users/{tobattle} --jq '.login'")
             print("Fetching bytes...")
-            bytesa = sum(map(int,api(f"/users/{tobattle}/repos --jq '.[].size'").splitlines()))
+            bytesa = sum(map(int,api(f"/users/{tobattle}/repos --jq .[].size").splitlines()))
             print(tobattle,"has",bytesa,"bytes. Proceed? (Y/n)")
             if input().lower() == "y":
                 print("Battling start!")
             else:
                 print("Battle denied.")
                 break
-            battle(sum(map(int,api(f"/users/{uname}/repos --jq '.[].size'").splitlines())),bytesa)
+            battle(sum(map(int,api(f"/users/{uname}/repos --jq .[].size").splitlines())),bytesa)
             cur["battles"].append("You vs "+tobattle+"!")
             with open("game.json","w") as f:
                 json.dump(cur,f)
