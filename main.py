@@ -26,7 +26,7 @@ def battle(youbytes:int,thembytes:int):
         exhaustedyou += used
         leftthem -= used
         print("You land a blow worth",used,"bytes.")
-    print("Now it's their turn!")
+    print("Now it's their turn to take bytes!")
     while not exhaustedthem > thembytes:
         used = random.randint(10000,500000)
         exhaustedthem += used
