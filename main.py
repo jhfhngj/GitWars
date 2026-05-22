@@ -16,19 +16,19 @@ def api(do):
     return subprocess.run(["gh", "api", "--cache", "1s"] + do.split(), capture_output=True, text=True).stdout
 def command(do):
     return subprocess.run(do.split(),capture_output=True,text=True,check=True).stdout
-def battle(youbytes:int,thembytes:int):
+def battle(youbytes:int,thembytes:int,youstars:float,themstars:float):
     leftyou = youbytes
     leftthem = thembytes
     exhaustedyou = 0
     exhaustedthem = 0
     while not exhaustedyou > youbytes:
-        used = random.randint(10000,500000)
+        used = (youstars*1000) + random.randint(-30,30)
         exhaustedyou += used
         leftthem -= used
         print("You land a blow worth",used,"bytes.")
     print("Now it's their turn to take bytes!")
     while not exhaustedthem > thembytes:
-        used = random.randint(10000,500000)
+        used = (themstars*1000) + random.randint(-30,30)
         exhaustedthem += used
         leftyou -= used
         print("BLAM! They ate",used,"bytes of yours.")
@@ -45,7 +45,7 @@ def battle(youbytes:int,thembytes:int):
             cur["won"] += 1
     else:
         print("It's a tie...")
-
+stars = sum(map(int, json.loads(command("gh repo list --json stargazerCount --jq [.[].stargazerCount]"))))
 print("\033cGitWars by jhfhngj")
 print("Welcome to GitWars!")
 uname = api("user --jq .login").strip()
@@ -67,6 +67,7 @@ try:
             print("Whilst battling, you won",won,"times!")
             print("You currently have",sum(map(int,api(f"/users/{uname}/repos --jq .[].size").splitlines())),"bytes.")
             print("Here are your battles:"," ".join(cur["battles"]))
+            print("You have this amount of damage, stars, in your repos:",float(stars))
         else:
             print("Welcome to Battle Mode.")
             print("Here you can battle all your opponents.")
@@ -77,13 +78,15 @@ try:
                 out = os.system(f"gh api users/{tobattle} --jq .login")
             print("Fetching bytes...")
             bytesa = sum(map(int,api(f"/users/{tobattle}/repos --jq .[].size").splitlines()))
-            print(tobattle,"has",bytesa,"bytes. Proceed? (Y/n)")
+            starsthem = sum(map(int, json.loads(command(f"gh repo list {tobattle} --json stargazerCount --jq [.[].stargazerCount]"))))
+            print(tobattle,"has",bytesa,"bytes and",
+            starsthem, "stars. Proceed? (Y/n)")
             if input().lower() == "y":
                 print("Battling start!")
             else:
-                print("Battle denied.")
+                print("Battle canceled.")
                 break
-            battle(sum(map(int,api(f"/users/{uname}/repos --jq .[].size").splitlines())),bytesa)
+            battle(sum(map(int,api(f"/users/{uname}/repos --jq .[].size").splitlines())),bytesa,stars,starsthem)
             cur["battles"].append("You vs "+tobattle+"!")
             with open("game.json","w") as f:
                 json.dump(cur,f)
